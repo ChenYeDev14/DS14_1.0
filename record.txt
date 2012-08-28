@@ -1,0 +1,1 @@
+	2012/8/28 将bool FIRSTBLOOD变量移至logic类中，配合地，将update.cpp中HeroDeath函数中的内容移入了logic::update()中，因为其中用到了FIRSTBLOOD

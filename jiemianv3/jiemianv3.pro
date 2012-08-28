@@ -20,9 +20,9 @@ HEADERS += \
     platform/replayfile.h \
     platform/NormalBattle.h \
     platform/NetBattle.h \
-    platform/Basic.h \
     platform/Status.h \
-    platform/Logic.h
+    platform/Logic.h \
+    platform/Basic.h
 
 SOURCES += \
     widgetssingle.cpp \
@@ -37,7 +37,8 @@ SOURCES += \
     platform/NormalBattle.cpp \
     platform/NetBattle.cpp \
     platform/toPlayer.cpp \
-    platform/Logic.cpp
+    platform/Logic.cpp \
+    platform/update.cpp
 
 FORMS += \
     widgetssingle.ui \
