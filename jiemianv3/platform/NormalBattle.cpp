@@ -129,7 +129,7 @@ void NormalBattle::InitAiInfo()
     _logic->init(map_location.toStdString());
     QFileInfo mapFile(map_location);
     rFile = new ReplayFile;
-    rFile->NewFile(playerName[0], playerName[1], mapFile.baseName());
+    rFile->NewFile(playerName[0].toStdString(), playerName[1].toStdString(), mapFile.baseName().toStdString());
 }
 /**********************************************************************************************************
  调试对战函数
@@ -187,7 +187,7 @@ void NormalBattle::StartDebugBattle()
            client[debug]->read(&f, sizeof(f));
            if (f == 'r')
            {
-               GameInfo gInfo = _logic->toPlayer(debug);
+               GameInfo gInfo = _logic->toPlayer(debug+1);
                client[debug]->write((char*)&gInfo, sizeof(gInfo));
            }
            else if (f == 'w')
@@ -201,7 +201,7 @@ void NormalBattle::StartDebugBattle()
            client[!debug]->read(&f, sizeof(f));
            if (f == 'r')
            {
-               GameInfo gInfo = _logic->toPlayer(!debug);
+               GameInfo gInfo = _logic->toPlayer(!debug+1);
                client[!debug]->write((char*)&gInfo, sizeof(gInfo));
            }
            else if (f == 'w')
@@ -226,7 +226,7 @@ void NormalBattle::StartDebugBattle()
                {
                    if (f == 'r')
                    {
-                       GameInfo gInfo = _logic->toPlayer(i);
+                       GameInfo gInfo = _logic->toPlayer(i+1);
                        client[i]->write((char*)&gInfo, sizeof(gInfo));
                    }
                    else if (f == 'w')
@@ -342,7 +342,9 @@ void NormalBattle::StartTwoAiBattle()
    _logic->init(map_location.toStdString());
    QFileInfo mapFile(map_location);
    rFile = new ReplayFile;
-   rFile->NewFile(playerName[0], playerName[1], mapFile.baseName());
+   rFile->NewFile(playerName[0].toStdString(), playerName[1].toStdString(), mapFile.baseName().toStdString());
+   StatusMapInfo mInfo; //  wait for logic add a function
+   rFile->WriteInitialInfo(pInfo[0], pInfo[1], mInfo);
 
    //开始对战
    for (int i=0; i<2; i++)
@@ -381,6 +383,9 @@ bool NormalBattle::RoundTimer()
     if (state.roundNumber % 10 == 0) emit round(state.roundNumber);
     rFile->WriteRoundInfo(state);
     int winner = WhetherWin(state);
+    if (aiThread[0]->hasCrashed() && !aiThread[1]->hasCrashed()) winner = 2;
+    else if (!aiThread[0]->hasCrashed() && aiThread[1]->hasCrashed()) winner = 1;
+    else if (aiThread[0]->hasCrashed() && aiThread[1]->hasCrashed()) winner = 3;
     if (winner)
     {
         rFile->WriteWinner(winner);
@@ -446,6 +451,12 @@ void AiReadWriteThread::run()
     init_state = 1;
     while (!ter)
     {
+        //if (process.state() != QProcess::Running) crashed = true;
+        if (process.error() != QProcess::UnknownError)
+        {
+            crashed = true;
+            break;
+        }
         reading = false;
         while (!ter && !requested && !client->waitForReadyRead(1));
         if (ter) break;
@@ -496,6 +507,11 @@ bool AiReadWriteThread::readPlayerInfo(PlayerInfo &pInfo)
     if (init_state == 2) return false;
     pInfo = playerInfo;
     return true;
+}
+
+bool AiReadWriteThread::hasCrashed()
+{
+    return crashed;
 }
 
 AiReadWriteThread::~AiReadWriteThread()

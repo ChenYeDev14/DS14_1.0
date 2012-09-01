@@ -17,10 +17,10 @@ HEADERS += \
     beginbottum.h \
     backwidget.h \
     aivsai.h \
+    platform/Status.h \
     platform/replayfile.h \
     platform/NormalBattle.h \
     platform/NetBattle.h \
-    platform/Status.h \
     platform/Logic.h \
     platform/Basic.h
 
@@ -33,12 +33,11 @@ SOURCES += \
     beginbottum.cpp \
     backwidget.cpp \
     aivsai.cpp \
-    platform/replayfile.cpp \
+    platform/update.cpp \
     platform/NormalBattle.cpp \
     platform/NetBattle.cpp \
-    platform/toPlayer.cpp \
     platform/Logic.cpp \
-    platform/update.cpp
+    platform/replayfile.cpp
 
 FORMS += \
     widgetssingle.ui \

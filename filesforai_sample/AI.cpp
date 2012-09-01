@@ -39,13 +39,18 @@ void PlayerRun()
 	char *c = new char[20];
 	itoa(x, c, 10);
 	string s = c;
-	s.append("b.txt");
+	s.append("a.txt");
 	file.open(s ,ios::trunc);
 	delete c;
 	while (true)
 	{
 		gInfo = GetGameInfo();
-		if (gInfo.roundNumber >= 2300) file.close();
+		if (gInfo.roundNumber >= 2300) 
+		{
+			file.close();
+			int a = 0;
+			//int x = 100 / a;
+		}
 		else file << gInfo.roundNumber <<endl;
 		//计算、策略、决策
 		command.heroOrder[0] = walk;

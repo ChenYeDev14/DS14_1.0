@@ -29,15 +29,14 @@ void Init(PlayerInfo &playerInfo);
 void PlayerRun();
 
 HANDLE hcontestt;
-wchar_t *ff;
+
 int wmain(int argc, wchar_t * argv[])
 {
-    PlayerInfo playerInfo;
+	PlayerInfo playerInfo;
 	LPWSTR lpFileName = new wchar_t [100];
     wcscpy(lpFileName, L"\\\\.\\pipe\\DS14") ;
 	if (argc==2)
 	{
-		ff = argv[2];
 		wcscat(lpFileName,argv[1]);
 		wcscat(lpFileName,L"\\");
 	}

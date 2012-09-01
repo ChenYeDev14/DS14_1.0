@@ -3,8 +3,8 @@
 #include <QString>
 #include <QThread>
 #include <QTimer>
-#include "Logic.h"
-#include "replayfile.h"
+#include "platform/Logic.h"
+#include "platform/replayfile.h"
 
 class QLocalServer;
 class QLocalSocket;
@@ -30,13 +30,14 @@ private:
     bool requested;      //一回合中Ai第二次申请游戏信息时只为true，下一回合一开始即发放游戏信息
     bool stoped;         //暂停读写保证平台安全提交选手指令
     bool reading;        //是否正与Ai交互
+    bool crashed;       //Ai是否崩溃
     GameInfo gInfo;
 
 
 public:
     AiReadWriteThread(QString listenName, QString aiPath) :
          listen_name(listenName), ai(aiPath), init_state(0), ter(false),
-         aiCommand(NULL), requested(false), writeAlready(false), stoped(true) {}
+         aiCommand(NULL), requested(false), writeAlready(false), stoped(true), crashed(false) {}
     ~AiReadWriteThread();
     void Ter() {ter = true;}
     PlayerCommand *getCommand() {return aiCommand;}
@@ -44,6 +45,7 @@ public:
     bool readPlayerInfo(PlayerInfo &pInfo);
     void reset(const GameInfo &ngInfo);
     void waitForReadingCompeleted();
+    bool hasCrashed();
 protected:
     void run();
 signals:

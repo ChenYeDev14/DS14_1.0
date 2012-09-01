@@ -32,6 +32,13 @@ AIvsAI::AIvsAI(QWidget *parent) :
 //    ui->Start->setDisabled(true);
     ui->progressBar->setValue(0);
 
+
+    ui->LineEditAI1->setText("C:/Users/ChenYe/Documents/Visual Studio 2010/Projects/DS14_AI/Release/DS14_AI.exe");
+    ui->LineEditAI2->setText("C:/Users/ChenYe/Documents/Visual Studio 2010/Projects/DS14_AI/Debug/DS14_AI.exe");
+    ui->LineEditMap->setText("C:/Users/ChenYe/Documents/Visual Studio 2010/Projects/DS14_AI/Release/DS14_AI.exe");
+
+
+
 }
 
 void AIvsAI::AI1()
