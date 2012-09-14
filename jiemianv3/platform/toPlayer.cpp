@@ -1,6 +1,6 @@
-#include"platform/Basic.h"
-#include"platform/Logic.h"
-#include"platform/Status.h"
+#include"Basic.h"
+#include"Logic.h"
+#include"Status.h"
 #include<iostream>
 using namespace std;
 

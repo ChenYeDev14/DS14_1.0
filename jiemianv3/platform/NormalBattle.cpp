@@ -259,11 +259,12 @@ void NormalBattle::UpDateCommand(PlayerCommand *c1, PlayerCommand *c2)
     delete c2;
     Status state = _logic->getStatus();
     emit round(state.roundNumber);
-    rFile->WriteRoundInfo(state);
+    //rFile->WriteRoundInfo(state);
+    if (c1 != NULL || c2 != NULL) rFile->WriteCommand(state.roundNumber-1, c1, c2);
     int winner = WhetherWin(state);
     if (winner)
     {
-        rFile->WriteWinner(winner);
+        rFile->WriteWinner(state.roundNumber, winner);
         emit send_winner(winner);
         delete _logic;
         _logic = NULL;
@@ -345,6 +346,7 @@ void NormalBattle::StartTwoAiBattle()
    rFile->NewFile(playerName[0].toStdString(), playerName[1].toStdString(), mapFile.baseName().toStdString());
    StatusMapInfo mInfo; //  wait for logic add a function
    rFile->WriteInitialInfo(pInfo[0], pInfo[1], mInfo);
+   rFile->WriteStatus0(_logic->getStatus());
 
    //开始对战
    for (int i=0; i<2; i++)
@@ -378,17 +380,20 @@ bool NormalBattle::RoundTimer()
         aiThread[1]->waitForReadingCompeleted();
         aiThread[0]->waitForReadingCompeleted();
     }
-    _logic->update(aiThread[0]->getCommand(), aiThread[1]->getCommand());
+    PlayerCommand *cmd1 = aiThread[0]->getCommand(),
+                  *cmd2 = aiThread[1]->getCommand();
+    _logic->update(cmd1, cmd2);
     Status state = _logic->getStatus();
     if (state.roundNumber % 10 == 0) emit round(state.roundNumber);
-    rFile->WriteRoundInfo(state);
+    //rFile->WriteRoundInfo(state);
+    if (cmd1 != NULL || cmd2 != NULL) rFile->WriteCommand(state.roundNumber-1, cmd1, cmd2);
     int winner = WhetherWin(state);
     if (aiThread[0]->hasCrashed() && !aiThread[1]->hasCrashed()) winner = 2;
     else if (!aiThread[0]->hasCrashed() && aiThread[1]->hasCrashed()) winner = 1;
     else if (aiThread[0]->hasCrashed() && aiThread[1]->hasCrashed()) winner = 3;
     if (winner)
     {
-        rFile->WriteWinner(winner);
+        rFile->WriteWinner(state.roundNumber, winner);
         emit send_winner(winner);
         for (int i=0; i<2; i++)
         {
@@ -451,12 +456,15 @@ void AiReadWriteThread::run()
     init_state = 1;
     while (!ter)
     {
-        //if (process.state() != QProcess::Running) crashed = true;
-        if (process.error() != QProcess::UnknownError)
+        //if (process.state() != QProcess::Running)
+        //if (process.error() != QProcess::UnknownError)
+        //if (process.exitStatus() == QProcess::CrashExit)
+        if (process.waitForFinished(0))
         {
             crashed = true;
             break;
         }
+
         reading = false;
         while (!ter && !requested && !client->waitForReadyRead(1));
         if (ter) break;

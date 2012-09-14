@@ -15,6 +15,7 @@ private:
 public:
     logic() {FIRSTBLOOD = false;}
 	void init(std::string dirctoryOfMap);//init from a map file.Liu Xiaoyu will do the job.
+    void init(const Status& s) { gameState = s;}
     GameInfo toPlayer(int side);//convert the status to send message to AIs.Wen Yuhao & Li Yudu will complete this function.
 	void update (PlayerCommand * command1,PlayerCommand * command2);//update status using commands of AI.Zhou Erjin will complete this function.
     Status getStatus();

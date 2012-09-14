@@ -1,4 +1,4 @@
-#include "platform/Logic.h"
+#include "Logic.h"
 using namespace DS14;
 
 void logic::init(std::string dirctoryOfMap)
@@ -8,6 +8,8 @@ void logic::init(std::string dirctoryOfMap)
     gameState.potInfo.AI2PotNumber = 1;
     gameState.AI1gold = 0;
     gameState.AI2gold = 0;
+    gameState.AI1HeroInfo[0].heroPosition.x = 20;
+    gameState.AI1HeroInfo[0].heroPosition.y = 20;
 }
 
 GameInfo logic::toPlayer(int side)//将side=1看作AI1，将side=2看作AI2,数值为-1代表不可见

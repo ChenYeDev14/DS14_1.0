@@ -55,14 +55,38 @@ void ReplayFile::WriteInitialInfo(const DS14::PlayerInfo &playerInfo1, const DS1
     file.write((char*)(&mapInfo), sizeof(mapInfo));
 }
 
-void ReplayFile::WriteRoundInfo(const DS14::Status &roundStatus)
+/*void ReplayFile::WriteRoundInfo(const DS14::Status &roundStatus)
 {
     file.put('r');
     file.write((char*)(&roundStatus), sizeof(roundStatus));
+}*/
+
+void ReplayFile::WriteStatus0(const Status &s)
+{
+    file.write((char*)&s, sizeof(Status));
 }
 
-void ReplayFile::WriteWinner(int winSide)
+void ReplayFile::WriteCommand(int round, const PlayerCommand *cmd1, const PlayerCommand *cmd2)
 {
+    file.write((char*)&round, sizeof(int));
+    file.put('c');
+    if (cmd1 == NULL) file.put('n');
+    else
+    {
+        file.put('y');
+        file.write((char*)cmd1, sizeof(PlayerCommand));
+    }
+    if (cmd2 == NULL) file.put('n');
+    else
+    {
+        file.put('y');
+        file.write((char*)cmd2, sizeof(PlayerCommand));
+    }
+}
+
+void ReplayFile::WriteWinner(int round, int winSide)
+{
+    file.write((char*)&round, sizeof(int));
     file.put('e');
     file.write((char*)(&winSide), sizeof(int));
     file.close();
@@ -111,7 +135,7 @@ void ReplayFile::ReadInitialInfo(DS14::PlayerInfo &playerInfo1, DS14::PlayerInfo
 
 void ReplayFile::ReadAllRoundInfo(int &roundNum, DS14::Status *statusList[])
 {
-	int round=0;
+/*	int round=0;
 //    int fp;
     char f;
     while(!file.eof())
@@ -131,6 +155,53 @@ void ReplayFile::ReadAllRoundInfo(int &roundNum, DS14::Status *statusList[])
 //    fp = file.tellg();
 
 	roundNum=round;
+    */
+    Status s0;
+    file.read((char*)&s0, sizeof(Status));
+    logic _logic;
+    _logic.init(s0);
+    char f;
+    int cur = 0, next;
+    PlayerCommand *cmd1, *cmd2;
+    cmd1 = NULL;
+    cmd2 = NULL;
+    while(!file.eof())
+    {
+        file.read((char*)&next, sizeof(int));
+        file.get(f);
+        if (f == 'c')
+        {
+            file.get(f);
+            if (f != 'n')
+            {
+                cmd1 = new PlayerCommand;
+                file.read((char*)cmd1, sizeof(PlayerCommand));
+            }
+            file.get(f);
+            if (f != 'n')
+            {
+                cmd2 = new PlayerCommand;
+                file.read((char*)cmd2, sizeof(PlayerCommand));
+            }
+        }
+        for (; cur < next; cur++)
+        {
+            _logic.update(NULL, NULL);
+            statusList[cur] = new Status;
+            *statusList[cur] = _logic.getStatus();
+        }
+        if (f == 'e')
+        {
+            roundNum = cur;
+            break;
+        }
+        _logic.update(cmd1, cmd2);
+        statusList[cur] = new Status;
+        *statusList[cur] = _logic.getStatus();
+        cur++;
+        if (cmd1 != NULL) {delete cmd1; cmd1 = NULL;}
+        if (cmd2 != NULL) {delete cmd2; cmd2 = NULL;}
+    }
 }
 
 void ReplayFile::ReadWinner(int &winSide)
